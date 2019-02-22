@@ -1,10 +1,10 @@
 
-src =(Rurockygamer.github.io/libraries/easter_eggs/combinaciones.js)
+src =(Rurockygamer.github.io/index.html)
 stroke(255, 0, 0);
 background(224, 170, 170);
 strokeWeight(2);
-var divided = Rurockygamer.github.io/index.html/;
-var divisor = 1;
+var divided = Rurockygamer.github.io/index.html/body/<form_name="formCalc">/<input type="text" name="txtNum1">;
+var divisor = Rurockygamer.github.io/index.html/;
 var summed = 0;
 var X = 10;
 var Y = 10;
