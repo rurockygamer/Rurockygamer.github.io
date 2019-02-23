@@ -1,11 +1,11 @@
 
-src =(Rurockygamer.github.io/index.html)
+//src =(Rurockygamer.github.io/index.html)
 stroke(255, 0, 0);
 background(224, 170, 170);
 strokeWeight(2);
-var divided = Rurockygamer.github.io/index.html/body/<form_name="formCalc">/<input type="text" name="txtNum1">;
-var divisor = Rurockygamer.github.io/index.html/;
-var summed = 0;
+var divided = Rurockygamer.github.io.index.html.form_name.formCalcinput.txtNum1.value;
+var divisor = 1;
+var summed = Rurockygamer.github.io.index.html.form_name.formCalcinput.txtNum2.value;
 var X = 10;
 var Y = 10;
 var Num = divided / divisor;
@@ -22,6 +22,8 @@ draw = function () {
         Num = divided / divisor;
         if (Num + divisor === summed) {
             text(Num + " + " + divisor + " = " + summed, X, Y);
+            return(Num)
+            Num = Rurockygamer.github.io/index.html.form_name.formCalcinput.txtNumRes.value 
 
         }
         if(Num -divisor === summed) {
