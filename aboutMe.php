@@ -15,7 +15,7 @@
 		</center>
 		<center>
 			<p>
-				<a href="./index.php">Home</a> | <b>About</b> | <a href="./News.php">News</a> | 
+				<a href="./index.html">Home</a> | <b>About</b> | <a href="./News.php">News</a> | 
 				<a href="./Contact.php">Contact</a>
 
 			</p>

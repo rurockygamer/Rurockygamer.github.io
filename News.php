@@ -46,8 +46,8 @@
 		</center>
 		<center>
 			<p>
-				<a href="./index.html">Home</a> | <a href="./aboutMe.html">About</a> | <b>News</b> | 
-				<a href="./Contact.html">Contact</a>
+				<a href="./index.html">Home</a> | <a href="./aboutMe.php">About</a> | <b>News</b> | 
+				<a href="./Contact.php">Contact</a>
 
 			</p>
 
