@@ -26,7 +26,7 @@
 
   $counterVal = str_pad($counterVal, 5, "0", STR_PAD_LEFT);
   $chars = preg_split('//', $counterVal);
-  $im = imagecreatefrompng("canvas.png");
+  $im = imagecreatefrompng("Canvas.png");
 
   $src1 = imagecreatefrompng("$chars[1].png");
   $src2 = imagecreatefrompng("$chars[2].png");
