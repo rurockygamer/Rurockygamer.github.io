@@ -20,7 +20,7 @@ draw = function () {
     }*/
     while (Y <= 400) {
         Num = divided / divisor;
-        if (Num + divisor === summed) {
+        if (Num + divisor === summed ) {
             text(Num + " + " + divisor + " = " + summed, X, Y);
             return(Num)
             Num = Rurockygamer.github.io/index.html.form_name.formCalcinput.txtNumRes.value 
