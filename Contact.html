@@ -54,10 +54,32 @@
 	<textarea rows="4" cols="50" name="comment" form="usrform">
 		Enter text here...</textarea>
 
-	<p>The text area above is outside the form element, but should still be a part of the form.</p>
+		<form method='post'>
+	  NAME: <input type='text' name='name' id='name' /><br />
 
-	<p><b>Note:</b> The form attribute is not supported in IE.</p>
+	  Email: <input type='text' name='email' id='email' /><br />
 
+	  Website: <input type='text' name='website' id='website' /><br />
+
+	  Comment:<br />
+	  <textarea name='comment' id='comment'></textarea><br />
+
+	  <input type='hidden' name='articleid' id='articleid' value='<? echo $_GET["id"]; ?>' />
+
+	  <input type='submit' value='Submit' />
+
+		</form>
+		<form action="/html/tags/html_form_tag_action.cfm" method="post">
+				<div>
+				<textarea name="comments" id="comments" style="font-family:sans-serif;font-size:1.2em;">
+				Hey... say something!
+				</textarea>
+				</div>
+				<input type="submit" value="Submit">
+		</form>  
+	<!--<p>The text area above is outside the form element, but should still be a part of the form.</p>
+
+	<p><b>Note:</b> The form attribute is not supported in IE.</p> -->
 	</body>
 
 </html>
