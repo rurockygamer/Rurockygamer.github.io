@@ -1,4 +1,4 @@
-REM this is made by RD
+#this is made by RD
 $t = 0;
 while ($t -le 2)
 {
