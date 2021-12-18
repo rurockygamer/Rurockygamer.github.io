@@ -13,9 +13,27 @@
 				width: 1000px;
 				height: 2000px;
 			}
-			.title1{
-				z-index: 2;
+			@font-face {
+				font-family: Rio-grande;
+				src: url("./libraries/Fonts/RioGrande.ttf");
+
 			}
+			:root {
+				--title-color: rgb(12, 12, 12);
+	            --primary-color: rgba(12, 21, 21, 1.0);
+	            --secondary-color: rgb(255, 255, 255);
+	            --text-background-color: rgba(179, 186, 164, 0.5);
+	            --background-color: rgba(179, 186, 164, 0.7);
+	        }
+	    	#Title{
+	    		font-family: Rio-grande;
+	    		color: var(--title-color);
+	    		text-align: center;
+	    		opacity: 1.5;
+	    		font-size: 50px;
+	    		/*top: 20px;*/
+
+	    	}
 			.pages{
 				max-width:10%;
   				max-height:10%;
@@ -50,9 +68,12 @@
 
 
 		<center>
-			<h1 id="title1">Rurockygamer Official Website</h1>
+			<h1 id="Title">(Rurockygamer´s) <br> 
+					(Official) <br>
+					(Website)</h1>
+		
 
-		<p>
+		<p style="text-align: center; background: var(--background-color);">
 			<a href="./index.html"><img class="pages" src="./libraries/Buttons/Home_Button_2.png" onclick="this.src='./libraries/Buttons/Home_Button_2_pressed.png'"></a> | <a href="./aboutMe.html"><img class="pages" src="./libraries/Buttons/AboutMe_Button_2.png" onclick="this.src='./libraries/Buttons/AboutMe_Button_2_pressed.png'"></a> | <a href="./News.html"><img class="pages" src="./libraries/Buttons/News_Button_2.png" onclick="this.src='./libraries/Buttons/News_Button_2_pressed.png'"></a> | 
 			<a href="./Contact.html"><img class="pages" src="./libraries/Buttons/Contact_Button_2.png" onclick="this.src='./libraries/Buttons/Contact_Button_2_pressed.png'"></a> | <a href="./subs_Art.html"><img class="pages" src="./libraries/Buttons/SubscribersArt_Button_2.png" onclick="this.src='./libraries/Buttons/SubscribersArt_Button_2_pressed.png'"></a>
 
