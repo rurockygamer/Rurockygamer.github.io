@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz App</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #c8c7d4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+  .card { width: 700px; min-height: 880px; background: #e0dfe8; border-radius: 10px; position: relative; }
+  .card-header { background: #5262d3; height: 116px; border-radius: 10px 10px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 0 40px; }
+  .card-header h1 { color: white; font-size: 36px; font-weight: 400; }
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; width: 100%; }
+  .progress-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.3s; }
+  .card-body { background: #f6f4f6; margin: 13px 20px; border-radius: 10px; box-shadow: 0 0 11px rgba(0,0,0,0.48); padding: 28px 36px 30px; min-height: 735px; display: flex; flex-direction: column; }
+  .question-text { font-size: 32px; font-weight: 400; color: #1e1e1e; margin-bottom: 28px; line-height: 1.3; }
+  .answers { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+
+  /* Base answer button */
+  .ans { width: 100%; border: none; border-radius: 12px; height: 60px; display: flex; align-items: center; padding: 0 16px; cursor: pointer; text-align: left; }
+  .ans-label { font-size: 24px; min-width: 48px; }
+  .ans-text { font-size: 24px; flex: 1; }
+  .ans-icon { font-size: 18px; margin-left: auto; flex-shrink: 0; }
+
+  /* 1. Default */
+  .ans-default { background: #e2e2ea; }
+  .ans-default:hover { background: #d4d3de; }
+  .ans-default .ans-label, .ans-default .ans-text { font-weight: 400; color: #1e1e1e; }
+
+  /* 2. Selected (pre-submit) */
+  .ans-selected { background: #c8c7d8; border: 2px solid #5262d3 !important; }
+  .ans-selected .ans-label, .ans-selected .ans-text { font-weight: 700; color: #5262d3; }
+
+  /* 3. Wrong — YOU picked it (strong red) */
+  .ans-wrong-you { background: #e9c8d2; border: 2px solid #941d27 !important; }
+  .ans-wrong-you.open { border-radius: 12px 12px 0 0; }
+  .ans-wrong-you .ans-label, .ans-wrong-you .ans-text { font-weight: 700; color: #941d27; }
+  .ans-wrong-you .ans-icon { color: #941d27; }
+  .exp-wrong { background: #e6d5de; border: 2px solid #bf6975; border-top: none; border-radius: 0 0 12px 12px; padding: 14px 22px; font-size: 19px; color: #1e1e1e; line-height: 1.5; }
+  .exp-wrong .lbl { color: #941d27; font-weight: 700; }
+
+  /* 4. Wrong — you didn't pick it (muted grey-purple) */
+  .ans-wrong-other { background: #dbd8e5; border: 2px solid #a099b5 !important; cursor: default; }
+  .ans-wrong-other .ans-label, .ans-wrong-other .ans-text { font-weight: 400; color: #6b6480; }
+  .ans-wrong-other .ans-icon { color: #a099b5; }
+
+  /* 5. Correct — YOU picked it (strong green) */
+  .ans-correct-you { background: #c4d4be; border: 3px solid #2e4a36 !important; }
+  .ans-correct-you.open { border-radius: 12px 12px 0 0; }
+  .ans-correct-you .ans-label, .ans-correct-you .ans-text { font-weight: 700; color: #2e4a36; }
+  .ans-correct-you .ans-icon { color: #2e4a36; }
+  .exp-correct { background: #bfcfba; border: 2px solid #6a9176; border-top: none; border-radius: 0 0 12px 12px; padding: 14px 22px; font-size: 19px; color: #1e1e1e; line-height: 1.5; }
+  .exp-correct .lbl { color: #2e4a36; font-weight: 700; }
+
+  /* 6. Correct — you didn't pick it (soft green, weaker) */
+  .ans-correct-other { background: #dce8d8; border: 2px solid #8aad91 !important; cursor: default; }
+  .ans-correct-other .ans-label, .ans-correct-other .ans-text { font-weight: 400; color: #42594a; }
+  .ans-correct-other .ans-icon { color: #8aad91; }
+
+  .ans-wrap { display: flex; flex-direction: column; }
+
+  /* Bottom buttons */
+  .spacer { flex: 1; }
+  .btn-submit { display: block; margin: 20px auto 0; background: #6372cd; border: none; border-radius: 7px; font-size: 32px; font-weight: 400; color: #f8f7fa; cursor: pointer; padding: 12px 30px; width: 324px; text-align: center; }
+  .btn-submit:hover { background: #4d5db0; }
+  .btn-submit:disabled { background: #e2e1e9; color: #aaa; cursor: default; }
+  .btn-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; }
+  .btn-back { background: transparent; border: none; font-size: 32px; color: #1e1e1e; cursor: pointer; padding: 14px 10px; min-width: 100px; }
+  .btn-back:hover { opacity: 0.6; }
+  .btn-next { background: rgba(99,114,207,0.65); border: none; border-radius: 7px; font-size: 36px; color: #fffcfc; cursor: pointer; padding: 10px 20px; min-width: 150px; text-align: center; }
+  .btn-next:hover { background: rgba(99,114,207,0.9); }
+
+  /* Warning modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: #f6f4f6; border-radius: 14px; padding: 36px 40px; max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .modal h2 { font-size: 26px; color: #1e1e1e; margin-bottom: 14px; }
+  .modal p { font-size: 19px; color: #504b5f; line-height: 1.5; margin-bottom: 28px; }
+  .modal-btns { display: flex; gap: 14px; }
+  .modal-btn-go { flex: 1; background: #6372cd; border: none; border-radius: 8px; font-size: 20px; color: white; cursor: pointer; padding: 14px; }
+  .modal-btn-go:hover { background: #4d5db0; }
+  .modal-btn-stay { flex: 1; background: #e2e2ea; border: none; border-radius: 8px; font-size: 20px; color: #1e1e1e; cursor: pointer; padding: 14px; }
+  .modal-btn-stay:hover { background: #cccad8; }
+
+  /* Score */
+  .score-screen { text-align: center; padding: 40px 20px; }
+  .score-big { font-size: 80px; font-weight: 700; color: #5262d3; margin: 24px 0 8px; }
+  .score-label { font-size: 28px; color: #1e1e1e; margin-bottom: 14px; }
+  .score-breakdown { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 30px; text-align: left; }
+  .score-row { display: flex; justify-content: space-between; font-size: 18px; padding: 10px 16px; border-radius: 8px; background: #e8e7f0; }
+  .score-row.ok { background: #d2d9ce; color: #2e4a36; }
+  .score-row.no { background: #e9c8d2; color: #941d27; }
+  .score-row.skip { background: #e2e2ea; color: #555; }
+  .btn-restart { background: #5262d3; border: none; border-radius: 10px; font-size: 26px; color: white; cursor: pointer; padding: 14px 36px; margin-top: 10px; }
+  .btn-restart:hover { background: #4252b3; }
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <h2>⚠️ Unanswered questions</h2>
+    <p id="modal-msg"></p>
+    <div class="modal-btns">
+      <button class="modal-btn-stay" onclick="closeModal()">Go back</button>
+      <button class="modal-btn-go" onclick="forceScore()">See results anyway</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const Qs = [
+  {
+    num:1, title:"Question 1 — Derivative",
+    text:"The derivative of a function at a point represents:",
+    answers:[{l:"A",t:"The function's highest value"},{l:"B",t:"The function's rate of change at that point"},{l:"C",t:"The total accumulated value of the function"},{l:"D",t:"The number of variables in the function"}],
+    correct:"B",
+    fb:{
+      A:{ok:false,text:"A derivative does not describe the highest value of a function; it describes how the function changes at a point."},
+      B:{ok:true, text:"The derivative measures how quickly the function's output changes with respect to its input at that point."},
+      C:{ok:false,text:"Accumulated value relates to integrals, not derivatives."},
+      D:{ok:false,text:"The derivative describes change in the function, not the number of variables."}
+    }
+  },
+  {
+    num:2, title:"Question 2 — Limit",
+    text:"The limit of a function as x approaches a value describes:",
+    answers:[{l:"A",t:"The value the function approaches near that input"},{l:"B",t:"The maximum value the function can reach"},{l:"C",t:"The slope of the function everywhere"},{l:"D",t:"The number of inputs allowed"}],
+    correct:"A",
+    fb:{
+      A:{ok:true, text:"A limit describes the value that a function gets closer to as the input approaches a specific number."},
+      B:{ok:false,text:"A limit does not describe the maximum value; it describes the value the function approaches."},
+      C:{ok:false,text:"The slope of a function is described by its derivative."},
+      D:{ok:false,text:"The allowed inputs of a function are described by its domain."}
+    }
+  },
+  {
+    num:3, title:"Question 3 — Continuous",
+    text:"A function is continuous at x = a if:",
+    answers:[{l:"A",t:"The function has no break or jump at that point"},{l:"B",t:"The function increases at that point"},{l:"C",t:"The function reaches its maximum there"},{l:"D",t:"The function becomes undefined there"}],
+    correct:"A",
+    fb:{
+      A:{ok:true, text:"A function is continuous at a point if its graph has no breaks, jumps, or holes there."},
+      B:{ok:false,text:"A function can increase or decrease and still be continuous."},
+      C:{ok:false,text:"A maximum is not required for continuity."},
+      D:{ok:false,text:"A function must be defined at a point to be continuous there."}
+    }
+  },
+  {
+    num:4, title:"Question 4 — Critical Point",
+    text:"A critical point of a function occurs when:",
+    answers:[{l:"A",t:"The derivative is zero or undefined"},{l:"B",t:"The function equals zero"},{l:"C",t:"The graph becomes linear"},{l:"D",t:"The function repeats values"}],
+    correct:"A",
+    fb:{
+      A:{ok:true, text:"A critical point occurs where the derivative of a function is zero or does not exist."},
+      B:{ok:false,text:"A function equaling zero does not necessarily indicate a critical point."},
+      C:{ok:false,text:"A linear graph has constant slope and does not indicate a critical point."},
+      D:{ok:false,text:"Repeating values describe periodic behavior, not critical points."}
+    }
+  }
+];
+
+let cur=0, sel=null, submitted=false, expanded=null;
+// scores[i] = {selected, isCorrect} or null if skipped
+let scores = new Array(Qs.length).fill(null);
+/*
+function render() {
+  const app = document.getElementById('app');
+  const q = Qs[cur];
+  const pct = (cur / Qs.length * 100).toFixed(0);
+  app.innerHTML = `
+    <div class="card-header">
+      <h1>${q.title}</h1>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card-body">
+      <p class="question-text">${q.text}</p>
+      <div class="answers" id="ans-container"></div>
+      <div class="spacer"></div>
+      ${!submitted ? `<button class="btn-submit" id="bsub" ${sel?'':'disabled'}>Submit Answer</button>` : ''}
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack()">${cur>0?'← Back':''}</button>
+        <button class="btn-next" onclick="goNext()">${cur<Qs.length-1?'Next →':'Finish'}</button>
+      </div>
+    </div>`;
+  if (!submitted) document.getElementById('bsub').onclick = doSubmit;
+  renderAnswers(q);
+}
+*/
+function renderAnswers(q) {
+  const c = document.getElementById('ans-container');
+  c.innerHTML = '';
+  q.answers.forEach(a => {
+    if (!submitted) {
+      // Pre-submit
+      const isSel = sel === a.l;
+      const btn = document.createElement('button');
+      btn.className = `ans ${isSel ? 'ans-selected' : 'ans-default'}`;
+      btn.innerHTML = `<span class="ans-label">${a.l})</span><span class="ans-text">${a.t}</span>`;
+      btn.onclick = () => { sel = a.l; render(); };
+      c.appendChild(btn);
+    } else {
+      // Post-submit
+      const isCorrect = a.l === q.correct;
+      const isYours = a.l === sel;
+      const isExp = expanded === a.l;
+
+      // Determine style: "yours" variants are stronger, "other" variants are muted — but ALL expandable
+      let btnClass, expClass, verdict, icon;
+      if (isCorrect && isYours)       { btnClass='ans-correct-you';   expClass='exp-correct'; verdict='Correct';   icon='✓'; }
+      else if (!isCorrect && isYours) { btnClass='ans-wrong-you';     expClass='exp-wrong';   verdict='Incorrect'; icon='✕'; }
+      else if (isCorrect)             { btnClass='ans-correct-other'; expClass='exp-correct'; verdict='Correct';   icon='✓'; }
+      else                            { btnClass='ans-wrong-other';   expClass='exp-wrong';   verdict='Incorrect'; icon='✕'; }
+      const wrap = mkWrap(a, btnClass, isExp, expClass, verdict, q.fb[a.l].text, icon);
+      c.appendChild(wrap);
+    }
+  });
+}
+
+function mkWrap(a, btnClass, isExp, expClass, verdict, text, icon) {
+  const wrap = document.createElement('div');
+  wrap.className = 'ans-wrap';
+  wrap.innerHTML = `
+    <button class="ans ${btnClass} ${isExp?'open':''}" onclick="toggleExp('${a.l}')">
+      <span class="ans-label">${a.l})</span>
+      <span class="ans-text">${a.t}</span>
+      <span class="ans-icon">${isExp ? '▲' : icon}</span>
+    </button>
+    ${isExp ? `<div class="${expClass}"><span class="lbl">${verdict}. </span>${text}</div>` : ''}`;
+  return wrap;
+}
+
+function toggleExp(letter) {
+  expanded = expanded === letter ? null : letter;
+  renderAnswers(Qs[cur]);
+}
+
+function doSubmit() {
+  if (!sel) return;
+  submitted = true;
+  const isCorrect = sel === Qs[cur].correct;
+  scores[cur] = { selected: sel, isCorrect };
+  expanded = sel; // auto-expand your answer
+  render();
+}
+
+function goNext() {
+  if (cur === Qs.length - 1) {
+    // Finishing — check for unanswered
+    const unanswered = scores.reduce((acc, s, i) => s === null ? acc.concat(i+1) : acc, []);
+    if (unanswered.length > 0) {
+      const noun = unanswered.length === 1 ? 'question' : 'questions';
+      document.getElementById('modal-msg').textContent =
+        `You haven't submitted ${noun} ${unanswered.join(', ')}. You can go back and answer ${unanswered.length===1?'it':'them'}, or see your results now (unanswered questions will be marked as skipped).`;
+      document.getElementById('modal').style.display = 'flex';
+      return;
+    }
+    cur = Qs.length; render(); return;
+  }
+  cur++;
+  loadState();
+}
+
+function goBack() {
+  if (cur === 0) return;
+  cur--;
+  loadState();
+}
+
+function loadState() {
+  const s = scores[cur];
+  if (s) { sel = s.selected; submitted = true; expanded = s.selected; }
+  else { sel = null; submitted = false; expanded = null; }
+  render();
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function forceScore() { closeModal(); cur = Qs.length; render(); }
+
+function render() {
+  if (cur >= Qs.length) { renderScore(); return; }
+  const app = document.getElementById('app');
+  const q = Qs[cur];
+  const pct = (cur / Qs.length * 100).toFixed(0);
+  app.innerHTML = `
+    <div class="card-header">
+      <h1>${q.title}</h1>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card-body">
+      <p class="question-text">${q.text}</p>
+      <div class="answers" id="ans-container"></div>
+      <div class="spacer"></div>
+      ${!submitted ? `<button class="btn-submit" id="bsub" ${sel?'':'disabled'}>Submit Answer</button>` : ''}
+      <div class="btn-row">
+        <button class="btn-back" onclick="goBack()">${cur>0?'← Back':''}</button>
+        <button class="btn-next" onclick="goNext()">${cur<Qs.length-1?'Next →':'Finish'}</button>
+      </div>
+    </div>`;
+  if (!submitted) document.getElementById('bsub').onclick = doSubmit;
+  renderAnswers(q);
+}
+
+function renderScore() {
+  const app = document.getElementById('app');
+  const total = Qs.length;
+  const correct = scores.filter(s => s?.isCorrect).length;
+  const skipped = scores.filter(s => s === null).length;
+  const wrong = total - correct - skipped;
+  const pct = Math.round(correct / total * 100);
+  const msg = pct===100?"Perfect score!" : pct>=75?"Great job! Keep it up." : pct>=50?"Good effort — review and retry!" : "Keep studying, you'll get there!";
+
+  const rows = Qs.map((q,i) => {
+    const s = scores[i];
+    if (!s) return `<div class="score-row skip"><span>Q${i+1}: ${q.title.split('—')[1].trim()}</span><span>⏭ Skipped</span></div>`;
+    return `<div class="score-row ${s.isCorrect?'ok':'no'}"><span>Q${i+1}: ${q.title.split('—')[1].trim()}</span><span>${s.isCorrect?'✓ Correct':'✕ Wrong'}</span></div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card-header"><h1>Results</h1><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+    <div class="card-body">
+      <div class="score-screen">
+        <p style="font-size:22px;color:#504b5f">You scored</p>
+        <div class="score-big">${correct}/${total}</div>
+        <p class="score-label">${pct}% correct &nbsp;·&nbsp; ${skipped} skipped</p>
+        <p style="font-size:20px;color:#504b5f;margin-bottom:16px">${msg}</p>
+        <div class="score-breakdown">${rows}</div>
+        <button class="btn-restart" onclick="restart()">Try Again</button>
+      </div>
+    </div>`;
+}
+
+function restart() {
+  cur=0; sel=null; submitted=false; expanded=null;
+  scores = new Array(Qs.length).fill(null);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

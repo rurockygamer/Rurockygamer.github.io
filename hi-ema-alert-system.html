@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HI-EMA | Alert Origination Console</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #12151c;
+    --surface-2: #1a1e28;
+    --surface-3: #222733;
+    --border: #2a303e;
+    --border-light: #353c4e;
+    --text: #e2e6ef;
+    --text-dim: #8892a6;
+    --text-muted: #5a6478;
+    --accent-blue: #3b82f6;
+    --accent-blue-dim: #1e3a6e;
+    --accent-green: #22c55e;
+    --accent-green-dim: #0d3a1f;
+    --accent-yellow: #eab308;
+    --accent-yellow-dim: #3d2e04;
+    --accent-orange: #f97316;
+    --accent-red: #ef4444;
+    --accent-red-dim: #450a0a;
+    --accent-red-glow: #dc2626;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #1e3a6e, #3b82f6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 11px;
+    color: #fff;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .logo-text {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  .logo-text span {
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-left: 6px;
+    font-size: 12px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse-dot 2s ease infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .status-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .operator-badge {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .time-display {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* MAIN LAYOUT */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    padding: 12px 20px 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .nav-item:hover {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .nav-item.active {
+    background: var(--surface-2);
+    border-left-color: var(--accent-blue);
+    color: var(--text);
+  }
+
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .threat-level {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .threat-bar {
+    height: 4px;
+    background: var(--surface-3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .threat-fill {
+    height: 100%;
+    width: 25%;
+    background: var(--accent-green);
+    border-radius: 2px;
+    transition: width 0.5s;
+  }
+
+  .threat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent-green);
+  }
+
+  /* CONTENT AREA */
+  .content {
+    padding: 28px 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content-header {
+    margin-bottom: 24px;
+  }
+
+  .content-header h1 {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .content-header p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ALERT GRID (Normal functions at top) */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .alert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .alert-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .alert-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .alert-card:hover {
+    border-color: var(--border-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .alert-card.cat-weather::before { background: var(--accent-blue); }
+  .alert-card.cat-tsunami::before { background: var(--accent-orange); }
+  .alert-card.cat-fire::before { background: var(--accent-yellow); }
+  .alert-card.cat-civil::before { background: var(--accent-green); }
+  .alert-card.cat-test::before { background: var(--text-muted); }
+  .alert-card.cat-hazard::before { background: #a855f7; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .cat-weather .card-icon { background: var(--accent-blue-dim); }
+  .cat-tsunami .card-icon { background: rgba(249,115,22,0.15); }
+  .cat-fire .card-icon { background: var(--accent-yellow-dim); }
+  .cat-civil .card-icon { background: var(--accent-green-dim); }
+  .cat-test .card-icon { background: var(--surface-3); }
+  .cat-hazard .card-icon { background: rgba(168,85,247,0.15); }
+
+  .card-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface-3);
+    color: var(--text-muted);
+  }
+
+  .card-badge.live {
+    background: var(--accent-green-dim);
+    color: var(--accent-green);
+  }
+
+  .card-badge.drill {
+    background: var(--surface-3);
+    color: var(--text-muted);
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .card-code {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* SEPARATOR */
+  .danger-separator {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+
+  .danger-separator .line {
+    flex: 1;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent-red) 0px,
+      var(--accent-red) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+    opacity: 0.4;
+  }
+
+  .danger-separator .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent-red);
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  /* THE BIG RED BUTTON AREA */
+  .missile-section {
+    background: linear-gradient(180deg, var(--accent-red-dim) 0%, rgba(69, 10, 10, 0) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .missile-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(239, 68, 68, 0.03) 20px,
+      rgba(239, 68, 68, 0.03) 40px
+    );
+    pointer-events: none;
+  }
+
+  .missile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .missile-header .warning-icon {
+    font-size: 22px;
+    animation: warning-flash 1.5s ease infinite;
+  }
+
+  @keyframes warning-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .missile-header h2 {
+    font-family: var(--mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .missile-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+    padding-left: 34px;
+  }
+
+  .missile-buttons {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .btn-missile {
+    flex: 1;
+    background: linear-gradient(180deg, #dc2626 0%, #991b1b 60%, #7f1d1d 100%);
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+    padding: 20px 24px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+    text-align: left;
+    box-shadow:
+      0 0 30px rgba(239, 68, 68, 0.15),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+
+  .btn-missile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-missile:hover::before {
+    left: 100%;
+  }
+
+  .btn-missile:hover {
+    box-shadow:
+      0 0 50px rgba(239, 68, 68, 0.3),
+      0 0 100px rgba(239, 68, 68, 0.1),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+    border-color: #f87171;
+  }
+
+  .btn-missile:active {
+    transform: translateY(0);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+  }
+
+  .btn-missile-label {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-missile-label .icon { font-size: 16px; }
+
+  .btn-missile-code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .btn-missile-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .btn-drill-missile {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .btn-drill-missile:hover {
+    border-color: var(--border-light);
+    background: var(--surface-3);
+  }
+
+  .btn-drill-label {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+
+  .btn-drill-code {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .btn-drill-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .missile-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(239, 68, 68, 0.15);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .missile-footer .lock-icon { font-size: 12px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--accent-red);
+    border-radius: 16px;
+    width: 480px;
+    max-width: 90vw;
+    overflow: hidden;
+    animation: scaleIn 0.2s ease;
+    box-shadow: 0 0 80px rgba(239, 68, 68, 0.2);
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-danger-bar {
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--accent-red) 0px,
+      var(--accent-red) 20px,
+      var(--accent-yellow) 20px,
+      var(--accent-yellow) 40px
+    );
+  }
+
+  .modal-body {
+    padding: 32px;
+    text-align: center;
+  }
+
+  .modal-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: warning-flash 1s ease infinite;
+  }
+
+  .modal-title {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .modal-text {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  .modal-alert-preview {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent-red);
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+  }
+
+  .modal-confirm-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  .modal-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .modal-input:focus {
+    border-color: var(--accent-red);
+  }
+
+  .modal-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 14px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+  }
+
+  .modal-btn.cancel {
+    background: var(--surface-3);
+    color: var(--text-dim);
+  }
+
+  .modal-btn.cancel:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .modal-btn.confirm {
+    background: var(--accent-red);
+    color: #fff;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .modal-btn.confirm.enabled {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .modal-btn.confirm.enabled:hover {
+    background: #dc2626;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+
+  /* FALSE ALARM MODAL */
+  .modal-false {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 80px rgba(34, 197, 94, 0.15);
+  }
+
+  .modal-false .modal-danger-bar {
+    background: var(--accent-green);
+  }
+
+  .modal-false .modal-icon { animation: none; }
+
+  .modal-false .modal-title {
+    color: var(--accent-green);
+  }
+
+  .modal-false .modal-text {
+    text-align: center;
+  }
+
+  /* LOG BAR */
+  .log-bar {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    position: sticky;
+    bottom: 0;
+  }
+
+  .log-entry {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .log-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+  }
+
+  .log-dot.warn { background: var(--accent-yellow); }
+
+  @media (max-width: 800px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .content { padding: 20px 16px; }
+    .missile-buttons { flex-direction: column; }
+    .alert-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo-mark">EMA</div>
+      <div class="logo-text">HI-EMA ALERT CONSOLE <span>v3.2.1</span></div>
+    </div>
+    <div class="topbar-right">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="status-dot"></div>
+        <div class="status-label">System Online</div>
+      </div>
+      <div class="operator-badge">OPR: J. TANAKA — SWP DIV</div>
+      <div class="time-display" id="clock">08:07:22 HST</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="nav-section-label">Operations</div>
+      <div class="nav-item active">
+        <div class="nav-icon">📡</div>
+        Alert Origination
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📋</div>
+        Alert History
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📊</div>
+        System Status
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">🗺️</div>
+        Coverage Map
+      </div>
+
+      <div class="nav-section-label">Management</div>
+      <div class="nav-item">
+        <div class="nav-icon">👥</div>
+        Operators
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📐</div>
+        Templates
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">⚙️</div>
+        Configuration
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">📘</div>
+        Procedures
+      </div>
+
+      <div class="nav-section-label">Reports</div>
+      <div class="nav-item">
+        <div class="nav-icon">📈</div>
+        Analytics
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">🔍</div>
+        Audit Log
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="threat-level">DEFCON Level</div>
+        <div class="threat-bar"><div class="threat-fill"></div></div>
+        <div class="threat-label">LOW — Normal Operations</div>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="content-header">
+        <h1>Alert Origination</h1>
+        <p>Select an alert template to initiate broadcast via EAS / WEA channels.</p>
+      </div>
+
+      <!-- WEATHER ALERTS -->
+      <div class="section-label">Weather & Natural Hazards</div>
+      <div class="alert-grid">
+        <div class="alert-card cat-weather" onclick="showInfo('Tsunami Warning')">
+          <div class="card-top">
+            <div class="card-icon">🌊</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Tsunami Warning</div>
+          <div class="card-desc">Full coastal evacuation advisory for all Hawaiian islands</div>
+          <div class="card-code">TSW (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-tsunami" onclick="showInfo('Flash Flood Warning')">
+          <div class="card-top">
+            <div class="card-icon">🌧️</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Flash Flood Warning</div>
+          <div class="card-desc">Imminent or ongoing flash flood conditions in affected areas</div>
+          <div class="card-code">FFW (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-fire" onclick="showInfo('Hurricane Warning')">
+          <div class="card-top">
+            <div class="card-icon">🌀</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Hurricane Warning</div>
+          <div class="card-desc">Hurricane conditions expected within 36 hours</div>
+          <div class="card-code">HUW (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-hazard" onclick="showInfo('Volcanic Activity')">
+          <div class="card-top">
+            <div class="card-icon">🌋</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Volcanic Activity Alert</div>
+          <div class="card-desc">Hazardous volcanic activity requiring public action</div>
+          <div class="card-code">VOW (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-fire" onclick="showInfo('Wildfire Evacuation')">
+          <div class="card-top">
+            <div class="card-icon">🔥</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Wildfire Evacuation</div>
+          <div class="card-desc">Mandatory evacuation order due to active wildfire</div>
+          <div class="card-code">WFE (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-civil" onclick="showInfo('AMBER Alert')">
+          <div class="card-top">
+            <div class="card-icon">🟡</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">AMBER Alert</div>
+          <div class="card-desc">Child abduction emergency broadcast</div>
+          <div class="card-code">AMB (CEM) — STATE ONLY</div>
+        </div>
+      </div>
+
+      <!-- CIVIL EMERGENCY -->
+      <div class="section-label">Civil Emergency & Infrastructure</div>
+      <div class="alert-grid">
+        <div class="alert-card cat-civil" onclick="showInfo('Civil Emergency Message')">
+          <div class="card-top">
+            <div class="card-icon">🏛️</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Civil Emergency Message</div>
+          <div class="card-desc">General civil emergency public notification</div>
+          <div class="card-code">CEM — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-civil" onclick="showInfo('Shelter in Place')">
+          <div class="card-top">
+            <div class="card-icon">🏠</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Shelter in Place</div>
+          <div class="card-desc">Hazardous materials release or air quality emergency</div>
+          <div class="card-code">SIP (CEM) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-civil" onclick="showInfo('Road Closure')">
+          <div class="card-top">
+            <div class="card-icon">🚧</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Road Closure Advisory</div>
+          <div class="card-desc">Major roadway closure affecting public transit</div>
+          <div class="card-code">RCA (ADV) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-civil" onclick="showInfo('Power Grid')">
+          <div class="card-top">
+            <div class="card-icon">⚡</div>
+            <div class="card-badge live">Live</div>
+          </div>
+          <div class="card-title">Power Grid Emergency</div>
+          <div class="card-desc">Widespread power failure or rolling blackouts</div>
+          <div class="card-code">PGE (CEM) — STATE ONLY</div>
+        </div>
+      </div>
+
+      <!-- TEST / DRILL ALERTS -->
+      <div class="section-label">Test & Drill Operations</div>
+      <div class="alert-grid">
+        <div class="alert-card cat-test" onclick="showInfo('Monthly EAS Test')">
+          <div class="card-top">
+            <div class="card-icon">🔧</div>
+            <div class="card-badge drill">Drill</div>
+          </div>
+          <div class="card-title">Monthly EAS Test</div>
+          <div class="card-desc">Required monthly test of Emergency Alert System</div>
+          <div class="card-code">DRILL — RMT (DEMO) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-test" onclick="showInfo('DRILL — PACOM')">
+          <div class="card-top">
+            <div class="card-icon">🔧</div>
+            <div class="card-badge drill">Drill</div>
+          </div>
+          <div class="card-title">DRILL — PACOM (CDW)</div>
+          <div class="card-desc">Internal BMD drill. Does NOT broadcast to public.</div>
+          <div class="card-code">DRILL — PACOM (CDW) — STATE ONLY</div>
+        </div>
+
+        <div class="alert-card cat-test" onclick="showInfo('CAE Test')">
+          <div class="card-top">
+            <div class="card-icon">🔧</div>
+            <div class="card-badge drill">Drill</div>
+          </div>
+          <div class="card-title">CAE Connectivity Test</div>
+          <div class="card-desc">Test connectivity with FEMA IPAWS gateway</div>
+          <div class="card-code">DRILL — CAE (DEMO) — STATE ONLY</div>
+        </div>
+      </div>
+
+      <!-- THE DANGEROUS ZONE -->
+      <div class="danger-separator">
+        <div class="line"></div>
+        <div class="label">⚠ Ballistic Missile Defense — Authorization Required</div>
+        <div class="line"></div>
+      </div>
+
+      <div class="missile-section">
+        <div class="missile-header">
+          <div class="warning-icon">☢️</div>
+          <h2>PACOM — Missile Alert</h2>
+        </div>
+        <div class="missile-subtitle">
+          Broadcast imminent ballistic missile threat to all Hawaiian islands via EAS, WEA, and siren network. 
+          Requires dual-operator confirmation.
+        </div>
+
+        <div class="missile-buttons">
+          <div class="btn-missile" onclick="openMissileModal()">
+            <div class="btn-missile-label">
+              <span class="icon">🚀</span>
+              PACOM (CDW) — LIVE
+            </div>
+            <div class="btn-missile-code">BMD Alert — All Islands — EAS + WEA + Sirens</div>
+            <div class="btn-missile-desc">
+              Sends "BALLISTIC MISSILE THREAT INBOUND TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS NOT A DRILL." to all devices statewide.
+            </div>
+          </div>
+
+          <div class="btn-drill-missile" onclick="showFalseAlarm()">
+            <div class="btn-drill-label">⬜ BMD False Alarm</div>
+            <div class="btn-drill-code">Correction — All Islands — EAS + WEA</div>
+            <div class="btn-drill-desc">
+              Sends correction: "There is no missile threat or danger to the State of Hawaii. Repeat. False Alarm."
+            </div>
+          </div>
+        </div>
+
+        <div class="missile-footer">
+          <span class="lock-icon">🔒</span>
+          Dual-operator auth required &nbsp;·&nbsp; Last BMD drill: Jan 06, 2018 08:02 HST &nbsp;·&nbsp; PACOM Status: NORMAL
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- LOG BAR -->
+  <div class="log-bar">
+    <div class="log-entry"><div class="log-dot"></div> EAS Gateway Connected</div>
+    <div class="log-entry"><div class="log-dot"></div> WEA Channel Active</div>
+    <div class="log-entry"><div class="log-dot"></div> IPAWS Authenticated</div>
+    <div class="log-entry"><div class="log-dot warn"></div> Shift change at 08:15</div>
+    <div style="margin-left:auto;">SAT 13 JAN 2018</div>
+  </div>
+
+  <!-- MISSILE CONFIRM MODAL -->
+  <div class="modal-overlay" id="missileModal">
+    <div class="modal">
+      <div class="modal-danger-bar"></div>
+      <div class="modal-body">
+        <div class="modal-icon">☢️</div>
+        <div class="modal-title">Confirm Live Missile Alert</div>
+        <div class="modal-text">
+          You are about to broadcast a <strong style="color:var(--accent-red)">LIVE BALLISTIC MISSILE THREAT</strong> alert to approximately <strong>1.4 million residents</strong> and all visitors across all Hawaiian islands.
+        </div>
+        <div class="modal-alert-preview">
+          "BALLISTIC MISSILE THREAT INBOUND TO HAWAII. SEEK IMMEDIATE SHELTER. THIS IS NOT A DRILL."
+        </div>
+        <div class="modal-confirm-label">Type <strong style="color:var(--accent-red)">CONFIRM MISSILE ALERT</strong> to proceed:</div>
+        <input class="modal-input" id="confirmInput" type="text" placeholder="Type confirmation phrase..." oninput="checkConfirm()">
+        <div class="modal-actions">
+          <button class="modal-btn cancel" onclick="closeModal()">Abort</button>
+          <button class="modal-btn confirm" id="confirmBtn" onclick="sendAlert()">Transmit Alert</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FALSE ALARM MODAL -->
+  <div class="modal-overlay" id="falseAlarmModal">
+    <div class="modal modal-false">
+      <div class="modal-danger-bar"></div>
+      <div class="modal-body">
+        <div class="modal-icon">✅</div>
+        <div class="modal-title" style="color:var(--accent-green)">Send False Alarm Correction</div>
+        <div class="modal-text">
+          This will broadcast a correction to all channels: EAS, WEA, and siren network.
+        </div>
+        <div class="modal-alert-preview" style="color:var(--accent-green);">
+          "THERE IS NO MISSILE THREAT OR DANGER TO THE STATE OF HAWAII. REPEAT. FALSE ALARM."
+        </div>
+        <div class="modal-actions" style="margin-top:20px;">
+          <button class="modal-btn cancel" onclick="closeFalseAlarm()">Cancel</button>
+          <button class="modal-btn confirm enabled" style="background:var(--accent-green);" onclick="closeFalseAlarm()">Send Correction</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO MODAL -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal" style="border-color:var(--border-light);">
+      <div class="modal-danger-bar" style="background:var(--accent-blue);"></div>
+      <div class="modal-body">
+        <div class="modal-icon" style="animation:none;">📡</div>
+        <div class="modal-title" style="color:var(--accent-blue);" id="infoTitle">Alert</div>
+        <div class="modal-text" id="infoText">This alert template has been selected.</div>
+        <div class="modal-actions" style="margin-top:20px;">
+          <button class="modal-btn cancel" onclick="closeInfo()">Close</button>
+          <button class="modal-btn confirm enabled" style="background:var(--accent-blue);" onclick="closeInfo()">Initiate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s} HST`;
+  }
+  setInterval(updateClock, 1000);
+
+  // Missile modal
+  function openMissileModal() {
+    document.getElementById('missileModal').classList.add('active');
+    document.getElementById('confirmInput').value = '';
+    document.getElementById('confirmBtn').classList.remove('enabled');
+  }
+
+  function closeModal() {
+    document.getElementById('missileModal').classList.remove('active');
+  }
+
+  function checkConfirm() {
+    const val = document.getElementById('confirmInput').value.trim().toUpperCase();
+    const btn = document.getElementById('confirmBtn');
+    if (val === 'CONFIRM MISSILE ALERT') {
+      btn.classList.add('enabled');
+    } else {
+      btn.classList.remove('enabled');
+    }
+  }
+
+  function sendAlert() {
+    alert('⚠️ ALERT TRANSMITTED\n\nBALLISTIC MISSILE THREAT INBOUND TO HAWAII.\nSEEK IMMEDIATE SHELTER.\nTHIS IS NOT A DRILL.');
+    closeModal();
+  }
+
+  // False alarm modal
+  function showFalseAlarm() {
+    document.getElementById('falseAlarmModal').classList.add('active');
+  }
+
+  function closeFalseAlarm() {
+    document.getElementById('falseAlarmModal').classList.remove('active');
+  }
+
+  // Info modal
+  function showInfo(name) {
+    document.getElementById('infoTitle').textContent = name;
+    document.getElementById('infoText').textContent = `You are about to initiate the "${name}" alert template. This will broadcast to all configured channels for the State of Hawaii.`;
+    document.getElementById('infoModal').classList.add('active');
+  }
+
+  function closeInfo() {
+    document.getElementById('infoModal').classList.remove('active');
+  }
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+</script>
+</body>
+</html>
