@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial — Practice Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #c8c7d4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+  /* ── Card shell ── */
+  .card { width: 700px; background: #e0dfe8; border-radius: 10px; }
+  .card-header { background: #5262d3; height: 116px; border-radius: 10px 10px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 0 40px; }
+  .card-header h1 { color: white; font-size: 36px; font-weight: 400; }
+  .progress-bar { height: 6px; background: rgba(255,255,255,0.3); border-radius: 3px; width: 100%; }
+  .progress-fill { height: 100%; background: white; border-radius: 3px; transition: width 0.3s; }
+  .card-body { background: #f6f4f6; margin: 13px 20px; border-radius: 10px; box-shadow: 0 0 11px rgba(0,0,0,0.48); padding: 28px 36px 28px; display: flex; flex-direction: column; gap: 0; min-height: 735px; }
+
+  /* ── Question text & keyword ── */
+  .question-text { font-size: 32px; font-weight: 400; color: #1e1e1e; margin-bottom: 24px; line-height: 1.35; }
+  .keyword { color: #5262d3; text-decoration: underline; cursor: pointer; font-weight: 600; white-space: nowrap; }
+  .keyword:hover { color: #3d4eb0; }
+
+  /* ── Main answers ── */
+  .answers { display: flex; flex-direction: column; gap: 12px; }
+  .ans { width: 100%; border: none; border-radius: 12px; height: 60px; display: flex; align-items: center; padding: 0 16px; cursor: pointer; text-align: left; transition: background 0.12s; }
+  .ans-label { font-size: 24px; min-width: 48px; }
+  .ans-text  { font-size: 24px; flex: 1; }
+  .ans-icon  { font-size: 18px; margin-left: auto; flex-shrink: 0; }
+  .ans-wrap  { display: flex; flex-direction: column; }
+
+  .ans-default       { background: #e2e2ea; }
+  .ans-default:hover { background: #d4d3de; }
+  .ans-default .ans-label, .ans-default .ans-text { font-weight: 400; color: #1e1e1e; }
+
+  .ans-selected { background: #c8c7d8; border: 2px solid #5262d3 !important; }
+  .ans-selected .ans-label, .ans-selected .ans-text { font-weight: 700; color: #5262d3; }
+
+  .ans-correct-you { background: #c4d4be; border: 3px solid #2e4a36 !important; }
+  .ans-correct-you.open { border-radius: 12px 12px 0 0; }
+  .ans-correct-you .ans-label, .ans-correct-you .ans-text { font-weight: 700; color: #2e4a36; }
+  .ans-correct-you .ans-icon { color: #2e4a36; }
+
+  .ans-wrong-you { background: #e9c8d2; border: 2px solid #941d27 !important; }
+  .ans-wrong-you.open { border-radius: 12px 12px 0 0; }
+  .ans-wrong-you .ans-label, .ans-wrong-you .ans-text { font-weight: 700; color: #941d27; }
+  .ans-wrong-you .ans-icon { color: #941d27; }
+
+  .ans-correct-other { background: #dce8d8; border: 2px solid #8aad91 !important; cursor: pointer; }
+  .ans-correct-other.open { border-radius: 12px 12px 0 0; }
+  .ans-correct-other:hover { background: #cfdeca; }
+  .ans-correct-other .ans-label, .ans-correct-other .ans-text { font-weight: 400; color: #42594a; }
+  .ans-correct-other .ans-icon { color: #8aad91; }
+
+  .ans-wrong-other { background: #dbd8e5; border: 2px solid #a099b5 !important; cursor: pointer; }
+  .ans-wrong-other.open { border-radius: 12px 12px 0 0; }
+  .ans-wrong-other:hover { background: #ccc9d8; }
+  .ans-wrong-other .ans-label, .ans-wrong-other .ans-text { font-weight: 400; color: #6b6480; }
+  .ans-wrong-other .ans-icon { color: #a099b5; }
+
+  .exp-wrong   { background: #e6d5de; border: 2px solid #bf6975; border-top: none; border-radius: 0 0 12px 12px; padding: 14px 22px; font-size: 19px; color: #1e1e1e; line-height: 1.5; }
+  .exp-wrong .lbl { color: #941d27; font-weight: 700; }
+  .exp-correct { background: #bfcfba; border: 2px solid #6a9176; border-top: none; border-radius: 0 0 12px 12px; padding: 14px 22px; font-size: 19px; color: #1e1e1e; line-height: 1.5; }
+  .exp-correct .lbl { color: #2e4a36; font-weight: 700; }
+
+  /* ── Scaffold panel ── */
+  .scaffold-panel {
+    background: #eceaf5;
+    border: 2px solid #5262d3;
+    border-radius: 12px;
+    margin-top: 20px;
+    padding: 20px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .scaffold-header {
+    font-size: 22px;
+    font-weight: 700;
+    color: #5262d3;
+    padding-bottom: 12px;
+    border-bottom: 2px dashed #a0a8e0;
+  }
+  .scaffold-q-text {
+    font-size: 21px;
+    font-weight: 400;
+    color: #1e1e1e;
+    line-height: 1.4;
+  }
+  .scaffold-answers { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Scaffold answer styles — smaller */
+  .sans { width: 100%; border: none; border-radius: 10px; height: 50px; display: flex; align-items: center; padding: 0 14px; cursor: pointer; text-align: left; transition: background 0.12s; }
+  .sans-label { font-size: 20px; min-width: 40px; }
+  .sans-text  { font-size: 20px; flex: 1; }
+  .sans-icon  { font-size: 16px; margin-left: auto; flex-shrink: 0; }
+  .sans-wrap  { display: flex; flex-direction: column; }
+
+  .sans-default       { background: #dddaf0; }
+  .sans-default:hover { background: #ccc8e4; }
+  .sans-default .sans-label, .sans-default .sans-text { color: #1e1e1e; font-weight: 400; }
+
+  .sans-selected { background: #c4c0e2; border: 2px solid #5262d3 !important; }
+  .sans-selected .sans-label, .sans-selected .sans-text { font-weight: 700; color: #3a46a8; }
+
+  .sans-correct-you { background: #c4d4be; border: 3px solid #2e4a36 !important; }
+  .sans-correct-you.open { border-radius: 10px 10px 0 0; }
+  .sans-correct-you .sans-label, .sans-correct-you .sans-text { font-weight: 700; color: #2e4a36; }
+
+  .sans-wrong-you { background: #e9c8d2; border: 2px solid #941d27 !important; }
+  .sans-wrong-you.open { border-radius: 10px 10px 0 0; }
+  .sans-wrong-you .sans-label, .sans-wrong-you .sans-text { font-weight: 700; color: #941d27; }
+
+  .sans-correct-other { background: #d4e4d0; border: 2px solid #8aad91 !important; cursor: pointer; }
+  .sans-correct-other.open { border-radius: 10px 10px 0 0; }
+  .sans-correct-other:hover { background: #c6d9c1; }
+  .sans-correct-other .sans-label, .sans-correct-other .sans-text { color: #42594a; }
+
+  .sans-wrong-other { background: #d5d2e8; border: 2px solid #a099b5 !important; cursor: pointer; }
+  .sans-wrong-other.open { border-radius: 10px 10px 0 0; }
+  .sans-wrong-other:hover { background: #c5c2db; }
+  .sans-wrong-other .sans-label, .sans-wrong-other .sans-text { color: #6b6480; }
+
+  .sexp-wrong   { background: #e6d5de; border: 2px solid #bf6975; border-top: none; border-radius: 0 0 10px 10px; padding: 12px 18px; font-size: 17px; color: #1e1e1e; line-height: 1.5; }
+  .sexp-wrong .lbl { color: #941d27; font-weight: 700; }
+  .sexp-correct { background: #bfcfba; border: 2px solid #6a9176; border-top: none; border-radius: 0 0 10px 10px; padding: 12px 18px; font-size: 17px; color: #1e1e1e; line-height: 1.5; }
+  .sexp-correct .lbl { color: #2e4a36; font-weight: 700; }
+
+  .btn-return {
+    align-self: flex-end;
+    background: #5262d3;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 12px 24px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .btn-return:hover { background: #3d4eb0; }
+
+  /* ── Bottom buttons ── */
+  .bottom-area { margin-top: auto; padding-top: 20px; }
+  .btn-submit { display: block; margin: 0 auto 14px; background: #6372cd; border: none; border-radius: 7px; font-size: 30px; font-weight: 400; color: #f8f7fa; cursor: pointer; padding: 12px 30px; width: 324px; text-align: center; }
+  .btn-submit:hover { background: #4d5db0; }
+  .btn-submit:disabled { background: #e2e1e9; color: #aaa; cursor: default; }
+  .btn-row { display: flex; align-items: center; justify-content: space-between; }
+  .btn-back { background: transparent; border: none; font-size: 28px; color: #1e1e1e; cursor: pointer; padding: 10px; min-width: 100px; }
+  .btn-back:hover { opacity: 0.6; }
+  .btn-next { background: rgba(99,114,207,0.65); border: none; border-radius: 7px; font-size: 32px; color: #fffcfc; cursor: pointer; padding: 10px 20px; min-width: 140px; text-align: center; }
+  .btn-next:hover { background: rgba(99,114,207,0.9); }
+
+  /* ── Warning modal ── */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: #f6f4f6; border-radius: 14px; padding: 36px 40px; max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .modal h2 { font-size: 26px; color: #1e1e1e; margin-bottom: 14px; }
+  .modal p  { font-size: 19px; color: #504b5f; line-height: 1.5; margin-bottom: 28px; }
+  .modal-btns { display: flex; gap: 14px; }
+  .modal-btn-go   { flex: 1; background: #6372cd; border: none; border-radius: 8px; font-size: 20px; color: white; cursor: pointer; padding: 14px; }
+  .modal-btn-go:hover { background: #4d5db0; }
+  .modal-btn-stay { flex: 1; background: #e2e2ea; border: none; border-radius: 8px; font-size: 20px; color: #1e1e1e; cursor: pointer; padding: 14px; }
+  .modal-btn-stay:hover { background: #cccad8; }
+
+  /* ── Score screen ── */
+  .score-screen { text-align: center; padding: 40px 20px; }
+  .score-big { font-size: 80px; font-weight: 700; color: #5262d3; margin: 24px 0 8px; }
+  .score-label { font-size: 28px; color: #1e1e1e; margin-bottom: 14px; }
+  .score-breakdown { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 30px; text-align: left; }
+  .score-row { display: flex; justify-content: space-between; font-size: 18px; padding: 10px 16px; border-radius: 8px; background: #e8e7f0; }
+  .score-row.ok   { background: #d2d9ce; color: #2e4a36; }
+  .score-row.no   { background: #e9c8d2; color: #941d27; }
+  .score-row.skip { background: #e2e2ea; color: #555; }
+  .btn-restart { background: #5262d3; border: none; border-radius: 10px; font-size: 26px; color: white; cursor: pointer; padding: 14px 36px; }
+  .btn-restart:hover { background: #4252b3; }
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <h2>⚠️ Unanswered questions</h2>
+    <p id="modal-msg"></p>
+    <div class="modal-btns">
+      <button class="modal-btn-stay" onclick="closeModal()">Go back</button>
+      <button class="modal-btn-go"   onclick="forceScore()">See results anyway</button>
+    </div>
+  </div>
+</div>
+<script>
+// ══════════════════════════════════════════════════════════
+// Questions 1 & 2: condition 1 structure (no scaffold)
+// Questions 3 & 4: condition 2 structure (with scaffold)
+// ══════════════════════════════════════════════════════════
+const Qs = [
+  // ── Q1: Condition 1 structure (plain quiz) ──
+  {
+    num:1, title:"Question 1 — Water Cycle",
+    text:"What is the primary process that moves water from the ocean into the atmosphere?",
+    hasScaffold: false,
+    answers:[
+      {l:"A", t:"Evaporation"},
+      {l:"B", t:"Condensation"},
+      {l:"C", t:"Erosion"},
+      {l:"D", t:"Filtration"}
+    ],
+    correct:"A",
+    fb:{
+      A:{ok:true,  text:"Evaporation is the process by which water changes from liquid to vapor and rises into the atmosphere, primarily driven by solar energy."},
+      B:{ok:false, text:"Condensation is the opposite process — it occurs when water vapor cools and turns back into liquid droplets, forming clouds."},
+      C:{ok:false, text:"Erosion is the gradual wearing away of land by water or wind. It does not describe how water enters the atmosphere."},
+      D:{ok:false, text:"Filtration refers to water passing through materials like soil or rock. It does not move water into the atmosphere."}
+    }
+  },
+
+  // ── Q2: Condition 1 structure (plain quiz) ──
+  {
+    num:2, title:"Question 2 — Time Zones",
+    text:"Why does the Earth have different time zones?",
+    hasScaffold: false,
+    answers:[
+      {l:"A", t:"Because the Earth rotates, so different areas face the Sun at different times"},
+      {l:"B", t:"Because the Earth is tilted on its axis"},
+      {l:"C", t:"Because the Sun moves around the Earth"},
+      {l:"D", t:"Because different countries chose different clocks"}
+    ],
+    correct:"A",
+    fb:{
+      A:{ok:true,  text:"The Earth rotates on its axis once every 24 hours. As it rotates, different parts of the planet face the Sun, creating the need for different time zones."},
+      B:{ok:false, text:"The tilt of the Earth's axis causes seasons, not time zones. Time zones are a result of the Earth's rotation."},
+      C:{ok:false, text:"The Sun does not move around the Earth. The Earth rotates and orbits the Sun, which is why different locations experience daylight at different times."},
+      D:{ok:false, text:"While countries do set their own clocks, the underlying reason for time zones is the Earth's rotation causing different parts to face the Sun at different times."}
+    }
+  },
+
+  // ── Q3: Condition 2 structure (with scaffold) ──
+  {
+    num:3, title:"Question 3 — Photosynthesis",
+    text:"The process of {photosynthesis} in plants primarily converts:",
+    hasScaffold: true,
+    keyword: "photosynthesis",
+    answers:[
+      {l:"A", t:"Sunlight, water, and carbon dioxide into glucose and oxygen"},
+      {l:"B", t:"Oxygen and glucose into carbon dioxide and water"},
+      {l:"C", t:"Soil nutrients into energy for the plant"},
+      {l:"D", t:"Heat from the ground into chemical energy"}
+    ],
+    correct:"A",
+    fb:{
+      A:{ok:true,  text:"Photosynthesis uses sunlight as energy to convert water and carbon dioxide into glucose (sugar) and oxygen. This happens mainly in the leaves of the plant."},
+      B:{ok:false, text:"This describes cellular respiration, which is essentially the reverse of photosynthesis. Plants also do cellular respiration, but it is a separate process."},
+      C:{ok:false, text:"While plants do absorb nutrients from soil, photosynthesis specifically involves sunlight, water, and carbon dioxide — not soil nutrients."},
+      D:{ok:false, text:"Photosynthesis is powered by light energy from the Sun, not heat from the ground."}
+    },
+    scaffold: {
+      text: "If a plant needs sunlight and water to grow, what do you think happens when a plant receives both of these at the same time?",
+      answers: [
+        {l:"A", t:"The plant uses them together to produce food"},
+        {l:"B", t:"The plant stores the water and ignores the sunlight"},
+        {l:"C", t:"The plant releases the water immediately"},
+        {l:"D", t:"Nothing happens until the plant also receives soil"}
+      ],
+      correct: "A",
+      fb: {
+        A:{ok:true,  text:"Plants use sunlight and water together (along with carbon dioxide from the air) to produce their own food through a chemical process."},
+        B:{ok:false, text:"Plants do not ignore sunlight. Sunlight is the energy source that drives the food-making process in leaves."},
+        C:{ok:false, text:"Plants absorb water through their roots and use it in chemical reactions — they do not simply release it."},
+        D:{ok:false, text:"While soil provides minerals, the main inputs for making food in leaves are sunlight, water, and carbon dioxide from the air."}
+      }
+    }
+  },
+
+  // ── Q4: Condition 2 structure (with scaffold) ──
+  {
+    num:4, title:"Question 4 — Boiling Point",
+    text:"The {boiling point} of water at sea level is:",
+    hasScaffold: true,
+    keyword: "boiling point",
+    answers:[
+      {l:"A", t:"100 °C (212 °F)"},
+      {l:"B", t:"50 °C (122 °F)"},
+      {l:"C", t:"0 °C (32 °F)"},
+      {l:"D", t:"200 °C (392 °F)"}
+    ],
+    correct:"A",
+    fb:{
+      A:{ok:true,  text:"At standard atmospheric pressure (sea level), water boils at 100 °C (212 °F). At higher altitudes, the boiling point is lower because atmospheric pressure decreases."},
+      B:{ok:false, text:"50 °C is well below the boiling point of water. At this temperature, water would be very hot but still liquid."},
+      C:{ok:false, text:"0 °C is the freezing point of water, not the boiling point. At 0 °C, water turns into ice."},
+      D:{ok:false, text:"200 °C is well above the boiling point of water. Water would have already turned completely into steam before reaching this temperature."}
+    },
+    scaffold: {
+      text: "When you heat water on a stove and it starts producing large bubbles that rise to the surface, what is happening to the water?",
+      answers: [
+        {l:"A", t:"It is turning from liquid into gas"},
+        {l:"B", t:"It is freezing"},
+        {l:"C", t:"It is dissolving"},
+        {l:"D", t:"It is becoming heavier"}
+      ],
+      correct: "A",
+      fb: {
+        A:{ok:true,  text:"The bubbles you see are water vapor — the water is changing from a liquid state to a gaseous state. This transition is what defines the boiling point."},
+        B:{ok:false, text:"Freezing is the opposite process — it happens when a liquid becomes a solid, which requires cooling, not heating."},
+        C:{ok:false, text:"Dissolving means a substance mixes into a liquid. Boiling is a phase change, not dissolving."},
+        D:{ok:false, text:"Heating water does not make it heavier. The bubbles form because the liquid is turning into gas, not because of weight changes."}
+      }
+    }
+  }
+];
+
+// ── State ──
+let cur = 0, sel = null, submitted = false, expanded = null;
+let scaffoldOpen = false, sSel = null, sSubmitted = false, sExpanded = null;
+let scores = new Array(Qs.length).fill(null);
+
+// ── Render question text: if it has a keyword, make it clickable ──
+function renderQText(q) {
+  if (!q.hasScaffold) return q.text;
+  return q.text.replace(`{${q.keyword}}`,
+    `<span class="keyword" onclick="openScaffold()">${q.keyword}</span>`);
+}
+
+// ── Open / close scaffold ──
+function openScaffold() {
+  scaffoldOpen = true;
+  render();
+  setTimeout(() => document.getElementById('scaffold-panel')?.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+}
+function closeScaffold() {
+  scaffoldOpen = false;
+  render();
+}
+
+// ── Main render ──
+function render() {
+  if (cur >= Qs.length) { renderScore(); return; }
+  const q = Qs[cur];
+  const pct = (cur / Qs.length * 100).toFixed(0);
+  const app = document.getElementById('app');
+
+  // Build scaffold HTML only for condition-2 questions
+  let scaffoldHTML = '';
+  if (q.hasScaffold && scaffoldOpen) {
+    scaffoldHTML = `
+      <div class="scaffold-panel" id="scaffold-panel">
+        <div class="scaffold-header">Scaffold question</div>
+        <p class="scaffold-q-text">${q.scaffold.text}</p>
+        <div class="scaffold-answers" id="sans-container"></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin-top:8px;">
+          ${!sSubmitted ? `<button id="s-submit-btn" class="btn-return" style="font-size:18px;padding:10px 20px;background:#b0b5d8;cursor:default;" disabled onclick="doSSubmit()">Submit ✓</button>` : ''}
+          <button class="btn-return" onclick="closeScaffold()">Return to Question &rsaquo;</button>
+        </div>
+      </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="card-header">
+      <h1>${q.title}</h1>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card-body">
+      <p class="question-text">${renderQText(q)}</p>
+      <div class="answers" id="ans-container"></div>
+      ${scaffoldHTML}
+      <div class="bottom-area">
+        ${!submitted ? `<button class="btn-submit" id="bsub" ${sel?'':'disabled'}>Submit Answer</button>` : ''}
+        <div class="btn-row">
+          <button class="btn-back" onclick="goBack()">${cur>0?'← Back':''}</button>
+          <button class="btn-next" onclick="goNext()">${cur<Qs.length-1?'Next →':'Finish'}</button>
+        </div>
+      </div>
+    </div>`;
+
+  if (!submitted) document.getElementById('bsub').onclick = doSubmit;
+  renderAnswers(q);
+  if (q.hasScaffold && scaffoldOpen) renderScaffoldAnswers(q.scaffold);
+}
+
+// ── Render main answers ──
+function renderAnswers(q) {
+  const c = document.getElementById('ans-container');
+  if (!c) return;
+  c.innerHTML = '';
+  q.answers.forEach(a => {
+    if (!submitted) {
+      const btn = document.createElement('button');
+      btn.className = `ans ${sel===a.l ? 'ans-selected' : 'ans-default'}`;
+      btn.innerHTML = `<span class="ans-label">${a.l})</span><span class="ans-text">${a.t}</span>`;
+      btn.onclick = () => { sel = a.l; render(); };
+      c.appendChild(btn);
+    } else {
+      const isCorrect = a.l === q.correct, isYours = a.l === sel, isExp = expanded === a.l;
+      let bCls, eCls, verdict, icon;
+      if      (isCorrect && isYours)  { bCls='ans-correct-you';   eCls='exp-correct'; verdict='Correct';   icon='✓'; }
+      else if (!isCorrect && isYours) { bCls='ans-wrong-you';     eCls='exp-wrong';   verdict='Incorrect'; icon='✕'; }
+      else if (isCorrect)             { bCls='ans-correct-other'; eCls='exp-correct'; verdict='Correct';   icon='✓'; }
+      else                            { bCls='ans-wrong-other';   eCls='exp-wrong';   verdict='Incorrect'; icon='✕'; }
+      c.appendChild(mkWrap(a, bCls, isExp, eCls, verdict, q.fb[a.l].text, icon, 'ans', 'toggleExp'));
+    }
+  });
+}
+
+// ── Render scaffold answers ──
+function renderScaffoldAnswers(sc) {
+  const c = document.getElementById('sans-container');
+  if (!c) return;
+  c.innerHTML = '';
+  sc.answers.forEach(a => {
+    if (!sSubmitted) {
+      const btn = document.createElement('button');
+      btn.className = `sans ${sSel===a.l ? 'sans-selected' : 'sans-default'}`;
+      btn.innerHTML = `<span class="sans-label">${a.l})</span><span class="sans-text">${a.t}</span>`;
+      btn.onclick = () => {
+        sSel = a.l;
+        renderScaffoldAnswers(sc);
+        const sb = document.getElementById('s-submit-btn');
+        if (sb) { sb.disabled = false; sb.style.background = '#5262d3'; sb.style.cursor = 'pointer'; }
+      };
+      c.appendChild(btn);
+    } else {
+      const isCorrect = a.l === sc.correct, isYours = a.l === sSel, isExp = sExpanded === a.l;
+      let bCls, eCls, verdict, icon;
+      if      (isCorrect && isYours)  { bCls='sans-correct-you';   eCls='sexp-correct'; verdict='Correct';   icon='✓'; }
+      else if (!isCorrect && isYours) { bCls='sans-wrong-you';     eCls='sexp-wrong';   verdict='Incorrect'; icon='✕'; }
+      else if (isCorrect)             { bCls='sans-correct-other'; eCls='sexp-correct'; verdict='Correct';   icon='✓'; }
+      else                            { bCls='sans-wrong-other';   eCls='sexp-wrong';   verdict='Incorrect'; icon='✕'; }
+      c.appendChild(mkWrap(a, bCls, isExp, eCls, verdict, sc.fb[a.l].text, icon, 'sans', 'toggleSExp'));
+    }
+  });
+}
+
+// ── Generic wrap builder ──
+function mkWrap(a, btnCls, isExp, expCls, verdict, text, icon, prefix, toggleFn) {
+  const wrap = document.createElement('div');
+  wrap.className = `${prefix}-wrap`;
+  wrap.innerHTML = `
+    <button class="${prefix} ${btnCls} ${isExp?'open':''}" onclick="${toggleFn}('${a.l}')">
+      <span class="${prefix}-label">${a.l})</span>
+      <span class="${prefix}-text">${a.t}</span>
+      <span class="${prefix}-icon">${isExp?'▲':icon}</span>
+    </button>
+    ${isExp?`<div class="${expCls}"><span class="lbl">${verdict}. </span>${text}</div>`:''}`;
+  return wrap;
+}
+
+function toggleExp(l)  { expanded  = expanded===l  ? null : l; renderAnswers(Qs[cur]); }
+function toggleSExp(l) { sExpanded = sExpanded===l ? null : l; renderScaffoldAnswers(Qs[cur].scaffold); }
+
+function doSubmit() {
+  if (!sel) return;
+  submitted = true;
+  scores[cur] = { selected: sel, isCorrect: sel === Qs[cur].correct };
+  expanded = sel;
+  render();
+}
+
+function doSSubmit() {
+  if (!sSel) return;
+  sSubmitted = true;
+  sExpanded = sSel;
+  render();
+}
+
+function goNext() {
+  if (cur === Qs.length - 1) {
+    const unanswered = scores.reduce((acc,s,i) => s===null ? acc.concat(i+1) : acc, []);
+    if (unanswered.length > 0) {
+      document.getElementById('modal-msg').textContent =
+        `You haven't submitted question${unanswered.length>1?'s':''} ${unanswered.join(', ')}. Go back to answer ${unanswered.length===1?'it':'them'}, or see your results now (unanswered will be marked as skipped).`;
+      document.getElementById('modal').style.display = 'flex';
+      return;
+    }
+    cur = Qs.length; render(); return;
+  }
+  cur++; loadState();
+}
+
+function goBack() {
+  if (cur===0) return;
+  cur--; loadState();
+}
+
+function loadState() {
+  const s = scores[cur];
+  sel = s ? s.selected : null;
+  submitted = !!s;
+  expanded = s ? s.selected : null;
+  // reset scaffold state on navigation
+  scaffoldOpen = false; sSel = null; sSubmitted = false; sExpanded = null;
+  render();
+}
+
+function closeModal()  { document.getElementById('modal').style.display='none'; }
+function forceScore()  { closeModal(); cur=Qs.length; render(); }
+
+function renderScore() {
+  const app = document.getElementById('app');
+  const total=Qs.length, correct=scores.filter(s=>s?.isCorrect).length;
+  const skipped=scores.filter(s=>s===null).length;
+  const pct=Math.round(correct/total*100);
+  const msg=pct===100?"Perfect score!":pct>=75?"Great job!":pct>=50?"Good effort — keep practicing!":"Keep studying!";
+  const rows=Qs.map((q,i)=>{
+    const s=scores[i];
+    if(!s) return `<div class="score-row skip"><span>Q${i+1}: ${q.title.split('—')[1].trim()}</span><span>⏭ Skipped</span></div>`;
+    return `<div class="score-row ${s.isCorrect?'ok':'no'}"><span>Q${i+1}: ${q.title.split('—')[1].trim()}</span><span>${s.isCorrect?'✓ Correct':'✕ Wrong'}</span></div>`;
+  }).join('');
+  app.innerHTML = `
+    <div class="card-header"><h1>Results</h1><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+    <div class="card-body">
+      <div class="score-screen">
+        <p style="font-size:22px;color:#504b5f">You scored</p>
+        <div class="score-big">${correct}/${total}</div>
+        <p class="score-label">${pct}% correct · ${skipped} skipped</p>
+        <p style="font-size:20px;color:#504b5f;margin-bottom:16px">${msg}</p>
+        <div class="score-breakdown">${rows}</div>
+        <button class="btn-restart" onclick="restart()">Try Again</button>
+      </div>
+    </div>`;
+}
+
+function restart() {
+  cur=0; sel=null; submitted=false; expanded=null;
+  scaffoldOpen=false; sSel=null; sSubmitted=false; sExpanded=null;
+  scores=new Array(Qs.length).fill(null);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
